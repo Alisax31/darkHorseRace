@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import sp_module as spm
 from matplotlib import pyplot as plt
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
@@ -28,21 +29,15 @@ def clean_data(df):
     df.drop(index=df.loc[df['sno'] == 'SV200946'].index, inplace=True)
     df.drop(index=df.loc[df['sum'] == '0'].index, inplace=True)
     df['sum'] = df['sum'].astype(int)
-    df.drop(index=df.loc[df['sum'] > 5000].index, inplace=True)
+    df.drop(index=df.loc[df['sum'] > 1000].index, inplace=True)
     df = df.groupby(['sno','date'])['sum'].sum()
     df = df.reset_index()
-    # df.drop(index=df.loc[df['sum'] > 1000].index, inplace=True)
-    df['date'] = pd.to_datetime(df['date'], format='%Y-%M')
+    # df['date'] = pd.to_datetime(df['date'], format='%Y-%M')
     # df.to_csv('g.csv', encoding='utf-8')
-    temp_df = df
-    for i in range(df.shape(0)):
-        if i == 0:
-            t_sno = df['sno'].iloc[0]
-            t_date = df['date'].iloc[0]
-        elif t_sno != df['sno'].iloc[i] and t_date != df['date'].iloc[i]:
-            temp_df.append(pd.DataFrame([df['sno'].iloc[i],df['date'].iloc[i],0], columns=['sno','date','sum']), ignore_index=True)
-
-    return df
+    temp_df = spm.fill_month_sum(df)
+    # print(temp_df.head())
+    # print(df.shape)
+    return temp_df
 
 def clean_data_new(df):
     # df = df[['物料号','日期','成本中心','数量','申购类型']]
