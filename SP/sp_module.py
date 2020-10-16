@@ -20,7 +20,7 @@ def fill_month_sum(df):
     temp_df = pd.DataFrame(columns=['id','sno','date','sum'])
     for i in range(0, df.shape[0]):
         if df.iloc[i, 0] != start_sno:
-            start_sno = df.iloc[i, 0]
+            # start_sno = df.iloc[i, 0]
             min_time = dt.strptime(df['date'].min(), '%Y-%m')
             if current_time != max_time:
                 delta = delta_month(current_time, max_time)
@@ -30,6 +30,7 @@ def fill_month_sum(df):
                     # print(a)
                     temp_df = temp_df.append({'id':i,'sno':start_sno,'date':next_time,'sum':0}, ignore_index = True)
                     delta = delta - 1
+            start_sno = df.iloc[i, 0]
         current_time = dt.strptime(df.iloc[i, 1], '%Y-%m')
         delta = delta_month(min_time, current_time)
         if delta > 0:
