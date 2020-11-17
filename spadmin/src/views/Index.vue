@@ -1,6 +1,5 @@
 <template>
-    <div id='app'>
-        <el-container style="height: 600px; border: 1px">
+        <!-- <el-container style="height: 600px; border: 1px">
             <el-aside width="200px" style="background-color:#409eff">
                 <el-menu :default-openeds="['1']">
                     <el-submenu index="1">
@@ -49,12 +48,37 @@
                     </el-table>
                 </el-main>
             </el-container>
+        </el-container> -->
+    <el-container>
+        <el-aside style="border: 1px">
+            <NaviMenu></NaviMenu>
+        </el-aside>
+        <el-container class="is-vertical">
+            <NaviHeader></NaviHeader>
+            <el-main>
+                <el-table :data="tableData">
+                    <el-table-column prop="date" label="date" width="150"></el-table-column>
+                    <el-table-column prop="name" label="name" width="150"></el-table-column>
+                    <el-table-column prop="address" label="address" width="150"></el-table-column>
+                </el-table>
+            </el-main>
         </el-container>
-    </div>
+    </el-container>
 </template>
 
+<style>
+
+</style>
+
 <script>
+import NaviMenu from "@/components/NaviMenu.vue"
+import NaviHeader from "@/components/NaviHeader.vue"
+
 export default {
+    components: {
+        NaviMenu,
+        NaviHeader
+    },
     data(){
         const item = {
             date: '2020-10-15',
