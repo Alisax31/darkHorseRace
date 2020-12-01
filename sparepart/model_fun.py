@@ -1,12 +1,25 @@
-import xgboost as xgb
+import os
+os.environ['OMP_NUM_THREADS'] = "1"
 import numpy as np
+import pickle
+import statsmodels.api as sm
+import calendar
+import warnings
+warnings.filterwarnings("ignore")
+# import xgboost as xgb
 import pandas as pd
-import matplotlib.pyplot as plt
+import fbprophet
+from itertools import product
+from datetime import datetime, timedelta
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import explained_variance_score
+from statsmodels.tsa.arima_model import ARIMA
+
+
+
 
 def linearFun(x_train, y_train, x_test, y_test):
     lr = LinearRegression()
@@ -58,3 +71,94 @@ def show_stats(data):
     print('std', np.std(data))
     print('var', np.var(data))
 
+def fbp(df, p, freq):
+    model = fbprophet.Prophet()
+    model.fit(df)
+    future = model.make_future_dataframe(periods=p, freq=freq)
+    future.tail()
+    forecast = model.predict(future)
+    model.plot(forecast)
+    model.plot_components(forecast)
+    print(forecast)
+    print(type(forecast))
+    if freq == 'Y':
+        time_format = '%Y'
+    elif freq == 'M':
+        time_format = '%Y-%m'
+    elif freq == 'D':
+        time_format = '%Y-%m-%d'
+    forecast['ds'] = forecast['ds'].dt.strftime(time_format)
+    result = forecast.to_dict(orient='list')
+    # print(result)
+    return result
+
+
+def arima_df():
+    with open('C:/Code/darkHorseRace/sparepart/data_model/df.pkl', 'rb') as file:
+        df = pickle.load(file)
+        df = pd.DataFrame(df)
+        print(df.head())
+    return df
+
+"""
+    使用ARIMA时间序列预测下一个月的领用量
+    输入：某sno的领用量
+    输出：下一个月的预估
+"""
+def arima_predict(df, verbose=False):
+    # 设置参数范围
+    ps = range(0, 5)
+    qs = range(0, 5)
+    ds = range(0, 1)
+    parameters = product(ps, ds, qs)
+    parameters_list = list(parameters)
+    # 寻找最优ARMA模型参数，即best_aic最小
+    results = []
+    best_aic = float("inf") # 正无穷
+    for param in parameters_list:
+        try:
+            #model = ARIMA(df_month.Price,order=(param[0], param[1], param[2])).fit()
+            # SARIMAX 包含季节趋势因素的ARIMA模型
+            model = sm.tsa.statespace.SARIMAX(df['sum'],order=(param[0], param[1], param[2]),\
+            enforce_stationarity=False,enforce_invertibility=False).fit()
+        except ValueError:
+            print('参数错误:', param)
+            continue
+        aic = model.aic
+        if aic < best_aic:
+            best_model = model
+            best_aic = aic
+            best_param = param
+        results.append([param, model.aic])
+    if verbose:
+        # 输出最优模型
+        print('最优模型: ', best_model.summary())
+    # 预测下一个月的领用量
+    y_pred = round(best_model.get_prediction(start=len(df)+1, end=len(df)+1).predicted_mean).values[0]
+    y_pred_t = round(best_model.get_prediction(start=len(df)+1, end=len(df)+2).predicted_mean).values
+    print('y_pred_t: ',y_pred_t)
+    print('y_pred_t type:',type(y_pred_t))
+    if y_pred < 0:
+        y_pred = 0
+    # if y_pred_t[0] < 0:
+    #     y_pred_t[0] = 0
+    # if y_pred_t[1] < 0:
+    #     y_pred_t[1] = 0
+    return int(y_pred)
+    # return y_pred_t
+
+if __name__ == "__main__":
+    # df = arima_df()
+    # # arima_predict(df,verbose=True)
+    # sno_list = "SV000048"
+    # temp = df[df['sno'] == sno_list]
+    # #print(temp)
+    # train_data = temp[0:-1]
+    # test_data = temp[-1:]
+    # #print('train_data: ', train_data)
+    # #print('test_data: ', test_data)
+    # next_month = arima_predict(train_data)
+    # next_month_real = test_data['sum'].values[0]
+    # print('{} {} 预估 {}, 实际用量{}'.format(sno_list, test_data.values[0][1], next_month, next_month_real))
+    df = pd.read_csv('C:/Code/fbp.csv')
+    a = fbp(df,12)

@@ -2,19 +2,13 @@
     <el-container>
         <SideMenu></SideMenu>
         <el-container class="is-vertical">
-            <!-- <el-header style="text-align:right"> -->
-                 <!-- <i class="el-icon-s-fold" style="text-align:left"></i> -->
+            <el-header height="30px">
                 <Header></Header>
-            <!-- </el-header> -->
-            <el-main>
-                <!-- <el-table :data="tableData">
-                    <el-table-column prop="date" label="date" width="150"></el-table-column>
-                    <el-table-column prop="name" label="name" width="150"></el-table-column>
-                    <el-table-column prop="address" label="address" width="150"></el-table-column>
-                </el-table> -->
+            </el-header>
+            <el-main class="main">
                 <router-view></router-view>
             </el-main>
-            <el-footer>
+            <el-footer height="30px">
                 <Footer></Footer>
             </el-footer>
         </el-container>
@@ -32,16 +26,12 @@ export default {
         Footer
     },
     data(){
-        const item = {
-            date: '2020-10-15',
-            name: 'Alisax',
-            address: 'IMB II '
-        };
-        return {
-            collapsed: false,
-            msg: '123',
-            tableData: Array(10).fill(item)
-        };
     }
 }
 </script>
+
+<style>
+.main {
+    background-color:rgb(246,246,246);
+}
+</style>

@@ -67,6 +67,16 @@ const routes = [{
             path: '/system/jobsmanage',
             name: 'jobsmanage',
             component: () => import('../views/System/JobsManage.vue')
+          },
+          {
+            path: '/analysis/fbp',
+            name: 'fbp',
+            component: () => import('../views/Analysis/FBProphet.vue')
+          },
+          {
+            path: '/analysis/timeanalysis',
+            name: 'timeanalysis',
+            component: () => import('../views/Analysis/TimeAnalysis.vue')
           }
         ]
       }

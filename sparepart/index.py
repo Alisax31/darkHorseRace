@@ -27,7 +27,7 @@ def index(username, password):
   db.session.commit()
   return 'Add new user'
 
-@bp.route('/<username>')
+@bp.route('/user/<username>')
 def get_user(username):
   auth_user = models.AuthUser.query.filter_by(username=username).first()
   print(auth_user)

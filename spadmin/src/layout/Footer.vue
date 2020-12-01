@@ -5,5 +5,6 @@
 <style>
     .footer {
         text-align: center;
+        line-height: 30px;
     }
 </style>

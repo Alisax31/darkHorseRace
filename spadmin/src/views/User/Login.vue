@@ -1,5 +1,5 @@
 <template>
-    <div id='Login'>
+    <div id='login'>
         <!-- ]<el-row>
             <el-col :span="24"><div></div></el-col>
         </el-row> -->
@@ -40,7 +40,13 @@
 </template>
 
 <style scoped>
-
+    #login {
+        padding-top:10%;
+    }
+    #app {
+        background-image: url('timg.jpg');
+        background-repeat: no-repeat;
+    }
 </style>
 <script>
 import axios from "axios";

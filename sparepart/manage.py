@@ -6,6 +6,7 @@ from flask import current_app
 from datetime import datetime
 from flask import request
 from werkzeug.utils import secure_filename
+from sparepart import dao
 from os import path
 
 bp = Blueprint('manage', __name__)
@@ -17,6 +18,29 @@ def get_user_data():
         aus_rs.append(au.to_json())     
     # return jsonify(au)
     return jsonify(aus_rs)
+
+@bp.route('/user/delete/<int:uid>')
+def delete_user_data(uid):
+    flag = dao.delete_user_by_uid(uid)
+    if flag:
+        return jsonify({'msg':True})
+    else: 
+        return jsonify({'msg':False})
+
+@bp.route('/user/modify', methods=['POST'])
+def modify_user_data():
+    if request.method == 'POST':
+        email = request.form['email']
+        department = request.form['department']
+        phone = request.form['phone']
+        uid = int(request.form['uid'])
+        au = {'uid': uid, 'email': email, 'department': department, 'phone': phone}
+        flag = dao.update_user(au)
+        if flag:
+            return jsonify({'msg':True})
+        else:
+            return jsonify({'msg':False})
+        
 
 @bp.route('/system/job/add', methods=['POST'])
 def add_job():
@@ -50,6 +74,21 @@ def add_job():
             # result = current_app.apscheduler.add_job(func=func_name, hours=interval_date, trigger=trigger, replace_existing=True)
     return jsonify({'msg':'success'})
 
+@bp.route('/system/job/remove/<job_id>')
+def remove_job(job_id):
+    current_app.apscheduler.remove_job(job_id)
+    return jsonify({'msg':'success'})
+
+@bp.route('/system/job/pause/<job_id>')
+def pause_job(job_id):
+    current_app.apscheduler.pause_job(job_id)
+    return jsonify({'msg':'success'})
+
+@bp.route('/system/job/resume/<job_id>')
+def resume_job(job_id):
+    current_app.apscheduler.resume_job(job_id)
+    return jsonify({'msg':'success'})
+
 @bp.route('/file/upload', methods=['POST'])
 def upload_file():
     if request.method == 'POST' :
@@ -62,5 +101,26 @@ def upload_file():
        print(abs_path)
        f.save(abs_path +'/'+ datetime.now().strftime('%Y%m%d%H%M%S') + '.' + temp[-1])
     return jsonify({'msg': 'success'})
-# def sp_job():
-#     print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))    
+
+@bp.route('/system/msg/get')
+def get_msg():
+    msg = dao.get_msg_count()
+    js = dict()
+    js['msg'] =  'success'
+    js['msg_count'] = len(msg)
+    js['msg_result'] = list()
+    for item in msg:
+        js['msg_result'].append(item.to_json())
+    return jsonify(js)
+
+@bp.route('/system/msg/update')
+def update_msg():
+    mid = request.args['mid']
+    is_read = request.args['is_read']
+    js = dao.update_msg(int(mid), int(is_read))
+    return jsonify({'msg':'success'})
+
+@bp.route('/test')
+def job_test():
+    jobs.sp_job()
+    return "111"

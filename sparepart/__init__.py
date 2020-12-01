@@ -8,6 +8,7 @@ from . import index
 from . import login
 from . import manage
 from . import sp_data_module
+from . import sp_data_analysis
 from . import config 
 
 def create_app(test_config=None):
@@ -39,6 +40,7 @@ def create_app(test_config=None):
     app.register_blueprint(login.bp)
     app.register_blueprint(manage.bp)
     app.register_blueprint(sp_data_module.bp)
+    app.register_blueprint(sp_data_analysis.bp)
     db.init_app(app)
     scheduler = APScheduler()
     scheduler.init_app(app)
