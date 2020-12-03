@@ -79,20 +79,25 @@ def df_pre_dispose():
     df = df[df['asset_no'].isin(temp)]
     return df
 
-def file_pre_dispose():
-    df = pd.read_csv("C:/Code/2018.xlsx", delimiter='\t')
-    temp = ['amount','price_per_unit','total_price']
-    for t in temp:
-        df[t] = df[t].str.replace(',', '')
-        df[t] = df[t].str.replace(r'\.00','')
-    temp = ['price_per_unit','total_price']
-    df.drop(index=df.loc[df['amount'].str.contains(r'\-')].index, inplace=True)
-    df.drop(index=df.loc[df['price_per_unit'].str.contains(r'\-')].index, inplace=True)
-    df.drop(index=df.loc[df['total_price'].str.contains(r'\-')].index, inplace=True)
-    for t in temp:
-        df[t] = df[t].astype(float)
-    df.to_csv('C:/Code/import_db_bak_2018.csv',encoding='utf-8')
-
+def file_pre_dispose(file_path):
+    try:
+        df = pd.read_csv(file_path, encoding='UTF-8')
+        df = df.dropna()
+        temp = ['amount','price_per_unit','total_price']
+        for t in temp:
+            df[t] = df[t].astype(str).str.replace(',', '')
+            df[t] = df[t].astype(str).str.replace(r'\.00','')
+        temp = ['price_per_unit','total_price']
+        df.drop(index=df.loc[df['amount'].str.contains(r'\-')].index, inplace=True)
+        df.drop(index=df.loc[df['price_per_unit'].str.contains(r'\-')].index, inplace=True)
+        df.drop(index=df.loc[df['total_price'].str.contains(r'\-')].index, inplace=True)
+        for t in temp:
+            df[t] = df[t].astype(float)
+        return df
+    except OSError as e:
+        print(e)
+        return None
+    
 def plant_split(x):
     if x=='94':
         return 'PFA1'
@@ -139,11 +144,4 @@ def plant_agg(x):
         return '9W'
     return x
 
-def share_sno_in_all_plant(df):
     pass
-
-
-if __name__ == "__main__" :
-    file_pre_dispose()
-    # a = polar_data()
-    # print(a)

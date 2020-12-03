@@ -120,7 +120,7 @@ def update_msg():
     js = dao.update_msg(int(mid), int(is_read))
     return jsonify({'msg':'success'})
 
-@bp.route('/test')
+@bp.route('/test/test')
 def job_test():
     jobs.sp_job()
     return "111"

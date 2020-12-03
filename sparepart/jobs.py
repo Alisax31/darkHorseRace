@@ -1,47 +1,52 @@
 # from flask import current_app
 import pandas as pd
-import numpy as np
+import shutil
+from os import path
+from os import listdir
 from sparepart import dao
+from sparepart import db
+from sparepart import excel_dispose
 from datetime import datetime
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-from sparepart import model_fun
-# from matplotlib import pyplot as plt
-# from sklearn.preprocessing import LabelEncoder
-# from sklearn.preprocessing import StandardScaler
-# from sklearn.model_selection import train_test_split
+from flask import current_app
+
+
 
 def sp_job():
     print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    dao.add_msg("SV000048预测数据",datetime.now)
+    dao.add_msg("SV000048预测数据")
 
 def sno_month_analysis_model():
     df = dao.get_xgboost_data()
     print(df)
     pass
 
-def test():
-    rs = dao.get_xgboost_data()
-    df =  pd.DataFrame(rs, columns=['sno','date','assetno','sum'])
-    le = LabelEncoder()
-    df['sno'] = le.fit_transform(df['sno'])
-    df['date'] = le.fit_transform(df['date'])
-    df['assetno'] =le.fit_transform(df['assetno'])
-    # df['type'] = le.fit_transform(df['type'])
-    #特征值
-    print(df.head())
-    print(df.corr())
-    x = df[['sno','date','assetno']]
-    #预测值
-    y = df['sum']
-    #xgboost使用
-    #------------------
-    #y = y/y.max(axis=0)
-    #------------------
-    scaler = StandardScaler()
-    scaler.fit(x)
-    x = scaler.transform(x)
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=1)
-    #linearFun(x_train, y_train, x_test, y_test)
-    model_fun.xgBoostReg(x_train, y_train, x_test, y_test)
+def import_data_into_db():
+    basepath = path.dirname(__file__)
+    upload_file_path = basepath + '/upload/temp/'
+    filename_list = listdir(upload_file_path)
+    if len(filename_list) == 0:
+        msg = "此次任务没有找到任何数据文件需要进行导入。"
+        dao.add_msg(msg)
+        return False
+    filename = filename_list[0]
+    file_path = upload_file_path + filename
+    try:
+        df = excel_dispose.file_pre_dispose(file_path)
+        if df is None:
+            return False
+        row_count = df.shape[0]
+        db_config = current_app.config.get('SQLALCHEMY_DATABASE_URI')
+        upload_success_path = current_app.config.get('UPLOAD_SUCCESS_PATH')
+        db_engine = ''
+        with current_app.app_context():
+            app = current_app        
+            db_engine = db.get_engine(app=app)
+        pd.io.sql.to_sql(df, 'tm_spare_part_all', db_engine, schema="spadmin", if_exists="replace")
+        shutil.move(file_path, basepath + upload_success_path + filename)
+        msg = filename + '数据处理完毕，成功导入' + str(row_count) + '条，并已经移入已上传目录。'
+        dao.add_msg(msg) 
+    except OSError as error:
+        print(error)
+        upload_fail_path = current_app.config.get('UPLOAD_FAIL_PATH')
+        shutil.move(file_path, basepath + upload_fail_path + filename)
+        return None

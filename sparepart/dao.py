@@ -1,4 +1,5 @@
 import pandas as pd
+import datetime
 from sparepart import db
 from sparepart import models
 from sqlalchemy import func
@@ -13,6 +14,13 @@ from sqlalchemy import distinct
 #     for item in sma_lists:
 #         sma_rs.append({'sno':item[0],'sum':int(item[1])})
 #     return sma_rs
+def get_top5_all_plant_used_sno(start_year):
+    tsp = models.TmSparePart
+    temp = db.session.query(func.year(tsp.o_warehouse_date), tsp.sno).\
+        filter(func.year(tsp.o_warehouse_date) == start_year).group_by(func.year(tsp.o_warehouse_date), tsp.sno).\
+            having(func.count(distinct(tsp.asset_no)) == 10).order_by(desc(func.sum(tsp.amount))).limit(5).all()
+    return temp
+
 
 def get_sno_type_count(start_year, end_year, plants):
     tsp = models.TmSparePart
@@ -102,8 +110,8 @@ def update_user(au):
     except:
         return False
 
-def add_msg(msg, time):
-    tm = models.TmMsg(msg,1)
+def add_msg(msg):
+    tm = models.TmMsg(msg,1,0)
     db.session.add(tm)
     db.session.commit()
     return True

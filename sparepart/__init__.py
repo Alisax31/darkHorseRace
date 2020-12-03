@@ -26,7 +26,8 @@ def create_app(test_config=None):
         os.mkdir(app.instance_path)
     except OSError:
         pass
-
+    app.config['UPLOAD_SUCCESS_PATH'] = "/upload/uploaded/"
+    app.config['UPLOAD_FAIL_PATH'] = "/upload/fail/"
     app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://spadmin:SPADMIN@localhost:3306/spadmin"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SCHEDULER_API_ENABLED'] = True

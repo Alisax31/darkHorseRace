@@ -1,6 +1,8 @@
 from flask import Flask
 from flask import Blueprint
 from flask import request
+from sparepart import jobs
+from datetime import datetime
 from sparepart import excel_dispose
 from sparepart import dao
 from flask import jsonify
@@ -10,6 +12,18 @@ import copy
 from plotly import plot as plt
 
 bp = Blueprint('sp_data_module', __name__)
+
+
+@bp.route('/test')
+def get_data():
+    start_year = '2017'
+    end_year = '2017'
+    print(datetime.now())
+    # js = dao.get_top5_all_plant_used_sno(start_year)
+    jobs.import_data_into_db()
+    print(datetime.now())
+    # print(js)
+    return 'success'
 
 @bp.route('/dashboard/scatter/get')
 def get_scatter_data():
