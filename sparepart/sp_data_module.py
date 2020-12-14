@@ -118,3 +118,14 @@ def t():
     rs['msg'] = 'success'
     # rs['ds'] = rs['ds'].strftime('%Y-%m')
     return jsonify(rs)
+
+@bp.route('/dashboard/linechart/get')
+def get_line_chart_data():
+    temp = dao.get_unused_sno_amount_price()
+    df = pd.DataFrame(temp, columns=['year_i','year_o','amount_sum','total_price'])
+    df['amount_sum'] = df['amount_sum'].astype(int)
+    df['total_price'] = df['total_price'].apply(lambda x: round(x/100000))
+    df['amount_sum'] = df['amount_sum'].apply(lambda x: round(x/10000))
+    js = df.to_dict(orient='list')
+
+    return jsonify(js)

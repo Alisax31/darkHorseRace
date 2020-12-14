@@ -41,12 +41,13 @@ def import_data_into_db():
         with current_app.app_context():
             app = current_app        
             db_engine = db.get_engine(app=app)
-        pd.io.sql.to_sql(df, 'tm_spare_part_all', db_engine, schema="spadmin", if_exists="replace")
+        pd.io.sql.to_sql(df, 'tm_spare_part_all', db_engine, schema="spadmin", if_exists="append", index=False)
         shutil.move(file_path, basepath + upload_success_path + filename)
         msg = filename + '数据处理完毕，成功导入' + str(row_count) + '条，并已经移入已上传目录。'
         dao.add_msg(msg) 
     except OSError as error:
         print(error)
-        upload_fail_path = current_app.config.get('UPLOAD_FAIL_PATH')
-        shutil.move(file_path, basepath + upload_fail_path + filename)
+        with current_app.app_context():
+            upload_fail_path = current_app.config.get('UPLOAD_FAIL_PATH')
+            shutil.move(file_path, basepath + upload_fail_path + filename)
         return None

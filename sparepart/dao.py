@@ -6,6 +6,7 @@ from sqlalchemy import func
 from sqlalchemy import desc
 from sqlalchemy import extract
 from sqlalchemy import distinct
+from sqlalchemy import text
 # def get_sno_month_analysis_data():
 #     SMA = models.SnoMonthAnalysis
 #     sma_lists = db.session.query(SMA.sno, func.sum(SMA.quantity).label('sum')).group_by(SMA.sno).order_by(desc('sum')).limit(5).all()
@@ -14,6 +15,20 @@ from sqlalchemy import distinct
 #     for item in sma_lists:
 #         sma_rs.append({'sno':item[0],'sum':int(item[1])})
 #     return sma_rs
+
+def get_unused_sno_amount_price():
+    tspa = models.TmSparePartAll
+    # having(func.year(tspa.o_warehouse_date).notin_(['2019','2018']).label('year_o')).\
+    year_o = func.year(tspa.o_warehouse_date).label('year_o')
+    year_i = func.year(tspa.i_warehouse_date).label('year_i')
+    temp = db.session.query(year_i, year_o, func.sum(tspa.amount), func.sum(tspa.total_price)).\
+        group_by(year_i, year_o).\
+            having(text("year_o not in ('2018','2019')")).\
+            having(text('year_i < 2017')).\
+                order_by(tspa.i_warehouse_date).all()
+    return temp
+    
+
 def get_top5_all_plant_used_sno(start_year):
     tsp = models.TmSparePart
     temp = db.session.query(func.year(tsp.o_warehouse_date), tsp.sno).\

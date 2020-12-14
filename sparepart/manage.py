@@ -122,5 +122,5 @@ def update_msg():
 
 @bp.route('/test/test')
 def job_test():
-    jobs.sp_job()
+    jobs.import_data_into_db()
     return "111"

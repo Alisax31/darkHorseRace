@@ -17,6 +17,7 @@ from sklearn import metrics
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import explained_variance_score
 from statsmodels.tsa.arima_model import ARIMA
+from fbprophet.diagnostics import cross_validation,performance_metrics
 
 
 
@@ -74,19 +75,22 @@ def show_stats(data):
 def fbp(df, p, freq):
     model = fbprophet.Prophet()
     model.fit(df)
-    future = model.make_future_dataframe(periods=p, freq=freq)
-    future.tail()
+    future = model.make_future_dataframe(periods=p, freq=freq, include_history=True)
+    # future.tail()
     forecast = model.predict(future)
-    model.plot(forecast)
-    model.plot_components(forecast)
-    print(forecast)
-    print(type(forecast))
+    # model.plot(forecast)
+    # model.plot_components(forecast)
+    # print(forecast)
     if freq == 'Y':
         time_format = '%Y'
     elif freq == 'M':
         time_format = '%Y-%m'
     elif freq == 'D':
         time_format = '%Y-%m-%d'
+    df_cv = cross_validation(model, horizon='30 days')
+    df_pe = performance_metrics(df_cv)
+    df_cv.to_csv('C:/Users/47135/Desktop/df_cv.csv', encoding='UTF-8')
+    df_pe.to_csv('C:/Users/47135/Desktop/df_pe.csv', encoding='UTF-8')
     forecast['ds'] = forecast['ds'].dt.strftime(time_format)
     result = forecast.to_dict(orient='list')
     # print(result)
