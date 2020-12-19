@@ -3,9 +3,9 @@ import pandas as pd
 import shutil
 from os import path
 from os import listdir
-from sparepart import dao
+from sparepart.dao import dao
 from sparepart import db
-from sparepart import excel_dispose
+from sparepart.util import util
 from datetime import datetime
 from flask import current_app
 
@@ -31,7 +31,7 @@ def import_data_into_db():
     filename = filename_list[0]
     file_path = upload_file_path + filename
     try:
-        df = excel_dispose.file_pre_dispose(file_path)
+        df = util.file_pre_dispose(file_path)
         if df is None:
             return False
         row_count = df.shape[0]

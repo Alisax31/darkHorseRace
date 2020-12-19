@@ -1,13 +1,13 @@
 from flask import Blueprint
-from sparepart import models
-from flask import jsonify
-from sparepart import jobs
 from flask import current_app
-from datetime import datetime
+from flask import jsonify
 from flask import request
-from werkzeug.utils import secure_filename
-from sparepart import dao
+from sparepart import jobs
+from sparepart.models import models
+from sparepart.dao import dao
 from os import path
+from datetime import datetime
+from werkzeug.utils import secure_filename
 
 bp = Blueprint('manage', __name__)
 @bp.route('/user/get')

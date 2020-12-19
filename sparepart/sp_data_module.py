@@ -1,18 +1,17 @@
+import pandas as pd
+import copy
 from flask import Flask
 from flask import Blueprint
 from flask import request
-from sparepart import jobs
-from datetime import datetime
-from sparepart import excel_dispose
-from sparepart import dao
 from flask import jsonify
-from sparepart import model_fun
-import pandas as pd
-import copy
+from sparepart import jobs
+from sparepart.util import util
+from sparepart.dao import dao
+from sparepart.data_model import model_fun
+from datetime import datetime
 from plotly import plot as plt
 
 bp = Blueprint('sp_data_module', __name__)
-
 
 @bp.route('/test')
 def get_data():
@@ -27,7 +26,7 @@ def get_data():
 
 @bp.route('/dashboard/scatter/get')
 def get_scatter_data():
-    js = excel_dispose.scatter_data()
+    js = util.scatter_data()
     return jsonify(js)
 
 @bp.route('/dashboard/keychart/post', methods=['POST'])
@@ -37,7 +36,7 @@ def get_keychart_data_all():
     end_year = request.json['end_year']
     plants = []
     for item in request.json['plants']:
-        tmp = excel_dispose.plant_agg(item)
+        tmp = util.plant_agg(item)
         plants.append(tmp)
     sno_type_count = dao.get_sno_type_count(start_year, end_year, plants)
     js = dict()
@@ -54,7 +53,7 @@ def get_keychart_data_all():
     #     i += 1
     # js['msg'] = 'sucess'
     # for item in sno_type_count:
-    #     plant = excel_dispose.plant_split(item[1])
+    #     plant = util.plant_split(item[1])
     #     percent = round((int(item[2]) / 10000)*100)
     #     print(type(item[0]))
     #     js[str(item[0])].append({plant: percent})
@@ -67,7 +66,7 @@ def get_keychart_data():
     js_list = []
     js['msg'] = 'sucess'
     for item in temp:
-        plant = excel_dispose.plant_split(item[1])
+        plant = util.plant_split(item[1])
         percent = round((int(item[2]) / 40000)*100)
         js_list.append({plant: percent})
     js['2017'] = js_list
@@ -82,7 +81,7 @@ def get_keychart_data():
 
 @bp.route('/dashboard/polar/get')
 def get_polar_data():
-    js = excel_dispose.polar_data()
+    js = util.polar_data()
     return jsonify(js)
 
 @bp.route('/dashboard/bar/get')

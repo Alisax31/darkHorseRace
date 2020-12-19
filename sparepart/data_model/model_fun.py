@@ -19,9 +19,6 @@ from sklearn.metrics import explained_variance_score
 from statsmodels.tsa.arima_model import ARIMA
 from fbprophet.diagnostics import cross_validation,performance_metrics
 
-
-
-
 def linearFun(x_train, y_train, x_test, y_test):
     lr = LinearRegression()
     model = lr.fit(x_train, y_train)

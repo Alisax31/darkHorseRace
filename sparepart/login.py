@@ -1,7 +1,7 @@
 from flask import Flask
 from flask import Blueprint
 from flask import request
-from sparepart import models
+from sparepart.models import models
 # from flask import render_template
 
 bp = Blueprint('login', __name__)

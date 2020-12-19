@@ -1,7 +1,7 @@
 import pandas as pd
 import datetime
 from sparepart import db
-from sparepart import models
+from sparepart.models import models
 from sqlalchemy import func
 from sqlalchemy import desc
 from sqlalchemy import extract
