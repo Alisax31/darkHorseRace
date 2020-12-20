@@ -31,13 +31,19 @@ const routes = [{
       {
         path: '/user/login',
         name: 'login',
-        component: () => import('../views/User/Login.vue')
+        component: () => import('../views/User/Login.vue'),
+        meta: {
+          needLogin: false
+        }
       }
     ]
   },
   {
     path: '/',
     component: () => import('@/layout/BasicLayout.vue'),
+    meta: {
+      needLogin: true
+    },
     children: [{
         path: '/',
         redirect: '/dashboard/analysis'
@@ -45,37 +51,66 @@ const routes = [{
       {
         path: '/dashboard',
         name: 'dashboard',
+        meta: {
+          needLogin: true
+        },
         component: {
           render: h => h("router-view")
         },
         children: [{
             path: '/dashboard/analysis',
             name: 'analysis',
+            meta: {
+              needLogin: true
+            },
             component: () => import('../views/Dashboard/Analysis.vue')
           },
           {
             path: '/user/manage',
             name: 'manage',
-            component: () => import('../views/User/Manage.vue')
+            component: () => import('../views/User/Manage.vue'),
+            meta: {
+              needLogin: true
+            }
           },
           {
             path: '/system/fileupload',
             name: 'fileupload',
+            meta: {
+              needLogin: true
+            },
             component: () => import('../views/System/FileUpload.vue')
           },
           {
             path: '/system/jobsmanage',
             name: 'jobsmanage',
+            meta: {
+              needLogin: true
+            },
             component: () => import('../views/System/JobsManage.vue')
+          },
+          {
+            path: '/system/holiday',
+            name: 'holiday',
+            meta: {
+              needLogin: true
+            },
+            component: () => import('../views/System/Holiday.vue')
           },
           {
             path: '/analysis/fbp',
             name: 'fbp',
+            meta: {
+              needLogin: true
+            },
             component: () => import('../views/Analysis/FBProphet.vue')
           },
           {
             path: '/analysis/timeanalysis',
             name: 'timeanalysis',
+            meta: {
+              needLogin: true
+            },
             component: () => import('../views/Analysis/TimeAnalysis.vue')
           }
         ]
@@ -85,6 +120,9 @@ const routes = [{
   {
     path: '*',
     name: '404',
+    meta: {
+      needLogin: false
+    },
     component: () => import('../views/404.vue')
   },
 
@@ -94,7 +132,13 @@ const router = new VueRouter({
 });
 router.beforeEach((to, from, next) => {
   NProgress.start();
-  next();
+  if(!to.meta.needLogin) {
+    next();
+  } else if(localStorage.getItem('flag') == 'isLogin') {
+    next()
+  } else {
+    next({path: '/user/login'});
+  }
 })
 router.afterEach(() => {
   NProgress.done();

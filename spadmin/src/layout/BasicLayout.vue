@@ -24,8 +24,6 @@ export default {
         Header,
         SideMenu,
         Footer
-    },
-    data(){
     }
 }
 </script>

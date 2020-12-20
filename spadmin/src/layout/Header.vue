@@ -9,7 +9,7 @@
                 <el-dropdown-item> 
                     <span @click="table = true">站内信</span><el-badge :value="msg_count" class="item" v-show="isValid"></el-badge>
                 </el-dropdown-item>
-                <el-dropdown-item><el-link href="/#/user/login">登出</el-link></el-dropdown-item>
+                <el-dropdown-item><span @click="loginOut()">登出</span></el-dropdown-item>
             </el-dropdown-menu>
         </el-dropdown>
         <span>{{msg}}</span>
@@ -41,13 +41,12 @@
 
 <script>
 import axios from 'axios'
-import qs from 'qs'
 export default {
     data() {
         return {
-            msg : "Admin",
+            msg : localStorage.getItem('username') + '，欢迎回来。',
             msg_count: 0,
-            // isValid: false,
+            isValid: false,
             table: false,
             msgData: []
         }
@@ -70,6 +69,10 @@ export default {
                     this.getMsg()
                 }
             })
+        },
+        loginOut() {
+            localStorage.clear()
+            this.$router.push('/user/login')
         }
     },
     mounted() {

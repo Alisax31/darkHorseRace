@@ -15,7 +15,7 @@
                         <el-row>
                             <el-col :span="24"><span>FBProphet时间预测分析</span></el-col>
                         </el-row>
-                        <el-row gutter="20">
+                        <el-row :gutter="20">
                             <el-col :span="6"><el-input type="text" v-model="fbp.sno" placeholder="请输入备件号"></el-input></el-col>
                             <el-col :span="6"><el-input type="text" v-model="fbp.periods" placeholder="请输入预测周期"></el-input></el-col>
                             <el-col :span="6">
@@ -25,13 +25,14 @@
                                     <el-option label="日" value="D"></el-option>
                                 </el-select>
                             </el-col>
-                            <el-col :span="6"><el-button type="primary" @click="showFBPAnalysis()">查询预测</el-button></el-col>
+                            <el-col :span="3"><el-button type="primary" @click="showFBPAnalysis()">查询预测</el-button></el-col>
+                            <el-col :span="3"><el-button type="info" icon="el-icon-date" @click="configHoliday()" circle=""></el-button></el-col>
                         </el-row>
                         
                         <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
                     </div>
                     <div class="block" v-loading="loading">
-                        <el-carousel height="600px" v-show="isShow" autoplay="false" style="width:100%">
+                        <el-carousel height="600px" v-show="isShow" :autoplay="false" style="width:100%">
                             <el-carousel-item style="width:100%">
                                 <div class="fbpChart" ref="fbpAnalysis"></div>
                             </el-carousel-item>
@@ -157,6 +158,9 @@ export default {
                 this.loading = false;
                 this.isShow = true;
             });
+        },
+        configHoliday() {
+            console.log("")
         }
     }
 }

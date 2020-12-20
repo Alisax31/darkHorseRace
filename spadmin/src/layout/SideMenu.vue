@@ -21,6 +21,7 @@
                     <el-menu-item index="/user/manage">用户管理</el-menu-item>
                     <el-menu-item index="/system/fileupload">后台数据上传</el-menu-item>
                     <el-menu-item index="/system/jobsmanage">定时任务管理</el-menu-item>
+                    <el-menu-item index="/system/holiday">节假日设定</el-menu-item>
                 </el-menu-item-group>
             </el-submenu>
         </el-menu>

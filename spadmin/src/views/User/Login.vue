@@ -55,7 +55,7 @@ import axios from "axios";
 // var data = qs.stringify();
 
 export default {
-    data(){
+    data() {
         var validateUsername = (rule, value, callback) => {
             if (value === '') {
                 callback(new Error('请输入用户名'));
@@ -108,6 +108,8 @@ export default {
                             that.$message.error('密码错误，请确认密码！')
                         }
                         if (response.data == 'validUser') {
+                            localStorage.setItem('flag','isLogin')
+                            localStorage.setItem('username',that.form.username)
                             that.$router.push('/')
                         }
                     });
@@ -126,7 +128,7 @@ export default {
             //     this.$refs[formName].resetFields();
             // })
             // this.$nextTrick(()=>{
-                this.$refs[formName].resetFields();
+            this.$refs[formName].resetFields();
             // })
         }
     }

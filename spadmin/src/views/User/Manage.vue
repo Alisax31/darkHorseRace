@@ -45,20 +45,22 @@
         </el-card>
     </el-row>
     <div>
-        <el-dialog title="" :visible.sync="isVisible">
-            <el-form :model="userForm" ref="userForm">            
+        <el-dialog title="" :visible.sync="isVisible" @close='closeUserDialog'>
+            <el-form :model="userForm" ref="userForm" :rules="rules">            
                 <el-form-item label="用户ID" prop="uid" :label-width="formLabelWidth" v-show="isEdit">
                     <el-input v-model="userForm.uid" autocomplete="off" :disabled="isEdit" v-show="isEdit"></el-input>
                 </el-form-item>
                 <el-form-item label="用户名" prop="username" :label-width="formLabelWidth">
                     <el-input v-model="userForm.username" autocomplete="off" :disabled="isEdit"></el-input>
                 </el-form-item>
-                <el-form-item label="密码" prop="password" :label-width="formLabelWidth" v-show="!isEdit">
-                    <el-input v-model="userForm.password" autocomplete="off" v-show="!isEdit"></el-input>
-                </el-form-item>
-                <el-form-item label="确认密码" prop="passworConfirm" :label-width="formLabelWidth" v-show="!isEdit">
-                    <el-input v-model="userForm.passwordConfirm" autocomplete="off" v-show="!isEdit"></el-input>
-                </el-form-item>                
+                <div v-show="!isEdit">
+                    <el-form-item label="密码" prop="password" :label-width="formLabelWidth">
+                        <el-input v-model="userForm.password" type="password" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="确认密码" prop="passwordConfirm" :label-width="formLabelWidth">
+                        <el-input v-model="userForm.passwordConfirm" type="password" autocomplete="off"></el-input>
+                    </el-form-item>
+                </div>                
                 <el-form-item label="电子邮件" prop="email" :label-width="formLabelWidth">
                     <el-input v-model="userForm.email" autocomplete="off"></el-input>
                 </el-form-item>
@@ -83,6 +85,35 @@ import axios from 'axios';
 import qs from 'qs';
 export default {
     data() {
+        var validatorPass = (rule, value, callback) => {
+            if (value === '') {
+                callback(new Error('密码不能为空'));
+            } else {
+                if (this.userForm.passwordConfirm !== '') {
+                    this.$refs.userForm.validateField('passwordConfirm');
+                }
+                callback();
+            }
+        };
+        var validatePass2 = (rule, value, callback) => {
+            if (value === '') {
+            callback(new Error('请再次输入密码'));
+            } else if (value !== this.userForm.password) {
+            callback(new Error('两次输入密码不一致!'));
+            } else {
+            callback();
+            }
+        };
+        // var validatorPassSame = (rule, value, callback) => {
+        //     console.log('confirmpass')
+        //     if (value === '') {
+        //         callback(new Error('请再次输入密码'));
+        //     } else if (value !== this.userForm.password) {
+        //         callback(new Error('请确认密码是否一致'));
+        //     } else {
+        //         callback();
+        //     }
+        // };
         return {
             currentPage: 1,
             pageSize: 5,
@@ -94,9 +125,18 @@ export default {
                 uid: '',
                 username: '',
                 password: '',
+                passwordConfirm: '',
                 email: '',
                 department: '',
                 phone: ''
+            },
+            rules: {
+                password: [
+                    {validator: validatorPass, trigger: 'blur'}
+                ],
+                passwordConfirm: [
+                    {validator: validatePass2, trigger: 'blur'}
+                ]
             },
             formLabelWidth: '120px'
         }
@@ -158,25 +198,40 @@ export default {
             if (this.isEdit) {
                 path = '/api/user/modify';
             } else {
-                path = '/api/user/delete';
+                path = '/api/user/insert';
             }
-            axios.post(path, datas, {headers:{'Content-Type':'application/x-www-form-urlencoded'}}).then(response => {
-                var data = response.data;
-                console.log(data)
-                this.$notify({
-                        title: "修改用户信息",
-                        message: "修改用户" + this.userForm.username + "信息成功。",
-                        type: "success"
-                })
-                this.isVisible = false;
-                this.isEdit = false;
-                this.handleInitialData();
-            }).finally(() => {
-                this.$refs['userForm'].resetFields();
-            });
-
+            this.$refs['userForm'].validate((valid) => function() {
+                if (valid) {
+                    axios.post(path, datas, {headers:{'Content-Type':'application/x-www-form-urlencoded'}}).then(() => {
+                        if (this.isEdit) {
+                            this.$notify({
+                                title: "修改用户信息",
+                                message: "修改用户" + this.userForm.username + "信息成功。",
+                                type: "success"
+                            })
+                            this.isEdit = false;
+                        } else {
+                            this.$notify({
+                                title: "新增用户",
+                                message: "新增用户" + this.userForm.username + "成功。",
+                                type: "success"
+                            })
+                        } 
+                        this.isVisible = false;
+                        this.handleInitialData();
+                    }).finally(() => {
+                        this.$refs['userForm'].resetFields();
+                    });
+                } else {
+                    return false;
+                }
+                
+            })
+            
+        },
+        closeUserDialog() {
+            this.$refs['userForm'].resetFields()
         }
-
     },
     mounted() {
         this.handleInitialData()

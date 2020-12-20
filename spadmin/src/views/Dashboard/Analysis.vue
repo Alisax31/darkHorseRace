@@ -100,7 +100,19 @@
         <el-row class="row" :gutter="20">
             <el-col :span="12">
                 <el-card body-style="padding:20px 5px;display:flex;align-content:center;">
-                    <div class="myChart" ref="barChart" v-loading="loading.barChart"></div>   
+                    <el-carousel height="550px" :autoplay="false" style="width:100%">
+                        <el-carousel-item style="width:100%">
+                             <div class="myChart" ref="barChart" v-loading="loading.barChart"></div>
+                        </el-carousel-item>
+                        <el-carousel-item>
+                            <div class="myChart" ref="areaStackChart" v-loading="loading.areaStackChart"></div>
+                        </el-carousel-item>
+                        <el-carousel-item>
+                            <div class="myChart" ref="lineChart" v-loading="loading.lineChart"></div>
+                        </el-carousel-item>
+                        <!-- <el-carousel-item><h2>3</h2></el-carousel-item> -->
+                    </el-carousel>
+                      
                 </el-card>
             </el-col>
             <el-col :span="12">
@@ -129,7 +141,8 @@ export default {
                 polarChart : false,
                 keyChart : false,
                 areaStackChart : false,
-                scatterChart : false
+                scatterChart : false,
+                lineChart : false
             },
             job:{
                 total: 0,
@@ -152,7 +165,7 @@ export default {
     },
     mounted() {
         this.showBarChart();
-        //  this.showAreaStackChart();
+        this.showLineChart();
         this.showSnoPercent();
         this.showJob();
         this.showPloarChart();
@@ -209,59 +222,85 @@ export default {
                         },
                         data: yAxisData
                     }]
-                }).finally(() => {
-                    this.loading.barChart = false
+                })
+                that.loading.barChart = false
+            })
+        },
+        showLineChart() {
+            this.lineChart = true;
+            this.areaStackChart = true;
+            axios.get('/api/dashboard/linechart/get').then((response) => {
+                let lineChart = this.$echarts.init(this.$refs.lineChart, 'light');
+                let areaStackChart = this.$echarts.init(this.$refs.areaStackChart, 'light');
+                var data = response.data;
+                lineChart.setOption({
+                    title: {
+                        text:'滞留备件数量趋势',
+                        left: 'center',
+                    },
+                    grid: {
+                        left: '8%',
+                        // right: '10%',
+                        // top: '18%',
+                        // bottom: '10%'
+                        containLabel:true
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                            type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                        }
+                    },
+                    xAxis: {
+                        data: data.year_i,
+                        name: '年份'
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: '数量(万个)'
+                    },
+                    series: [{
+                        type: 'line',
+                        areaStyle: {},
+                        data: data.amount_sum
+                    }]
                 });
-            })
-        },
-        showAreaStackChart() {
-            let areaStackChart = this.$echarts.init(this.$refs.areaStackChart);
-            areaStackChart.setOption({
-                title: {text:'堆叠区域图'},
-                tooltip: {},
-                legend: {
-                    data: ['a','b','c','d','e']
-                },
-                xAxis: {
-                    data:['第一季度','第二季度','第三季度','第四季度']
-                },
-                yAxis: {},
-                series: [
-                    {
-                        name: 'a',
-                        type: 'line',
-                        stack: '总量',
-                        areaStyle: {},
-                        data: [100,200,300,400]
+                areaStackChart.setOption({
+                    title: {
+                        text:'滞留备件金额趋势',
+                        left: 'center',
                     },
-                    {
-                        name: 'b',
-                        type: 'line',
-                        stack: '总量',
-                        areaStyle: {},
-                        data: [238,123,222,310]
-                    },                    {
-                        name: 'c',
-                        type: 'line',
-                        stack: '总量',
-                        areaStyle: {},
-                        data: [150,232,30,400]
-                    },                    {
-                        name: 'd',
-                        type: 'line',
-                        stack: '总量',
-                        areaStyle: {},
-                        data: [120,132,90,210]
-                    },                    {
-                        name: 'e',
-                        type: 'line',
-                        stack: '总量',
-                        areaStyle: {},
-                        data: [230,120,334,301]
+                    grid: {
+                        left: '8%',
+                        // right: '10%',
+                        // top: '18%',
+                        // bottom: '10%'
+                        containLabel:true
+                    }, 
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                            type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                        }
                     },
-                ]
+                    xAxis: {
+                        data: data.year_i,
+                        name: '年份'
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: '金额(万元)'
+                    },
+                    series: [{
+                        type: 'line',
+                        areaStyle: {},
+                        data: data.total_price
+                    }]
+                });
+                this.lineChart = false;
+                this.areaStackChart = false;
             })
-        },
+        },        
         showPloarChart() {
             this.loading.polarChart = true;
             let that = this;
@@ -342,12 +381,9 @@ export default {
                         y: "95%",
                         data: top5_plant_sno_data
                     }
-                }).finally(() => {
-                    this.loading.polarChart = false;
-                });
+                })
+                that.loading.polarChart = false;
             })
-            
-            
         },
         showScatterChart() {
             this.loading.scatterChart = true;

@@ -121,12 +121,10 @@ export default {
             });
         },
         handleCurrentChange(val) {
-            console.log(val);
             this.currentPage = val;
             console.log(this.currentPage);
         },
         hanldeSizeChange(val) {
-            console.log(val);
             this.pageSize = val;
             console.log(this.pageSize);
         },
@@ -139,8 +137,7 @@ export default {
             var that = this
             const path = "/api/system/job/add";
             axios.post(path, datas, {headers:{'Content-Type':'application/x-www-form-urlencoded'}}).then(
-                (res) => {
-                    console.log(res.data.msg);
+                () => {
                     that.$notify({
                         title: "添加任务状况",
                         message: "添加任务" + that.jobForm.jobName + "成功",
@@ -152,8 +149,7 @@ export default {
             this.handleInitialData();
         },
         handleRemove(row) {
-            axios.get('/api/system/job/remove/' + row.id).then(response => {
-                console.log(response.data)
+            axios.get('/api/system/job/remove/' + row.id).then(() => {
                 this.handleInitialData()
             })
 
@@ -183,11 +179,13 @@ export default {
             })
         },
         isShow(row) {
-            console.log(row)
+            // this.$nextTick(() => {
+            console.log(row.next_run_time)
             if (row.next_run_time == null)
                 return true
             else
                 return false
+            // })
         }
     },
     mounted() {
