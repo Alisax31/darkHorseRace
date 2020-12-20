@@ -17,10 +17,8 @@ bp = Blueprint('sp_data_module', __name__)
 def get_data():
     start_year = '2017'
     end_year = '2017'
-    print(datetime.now())
     # js = dao.get_top5_all_plant_used_sno(start_year)
     jobs.import_data_into_db()
-    print(datetime.now())
     # print(js)
     return 'success'
 
@@ -31,7 +29,6 @@ def get_scatter_data():
 
 @bp.route('/dashboard/keychart/post', methods=['POST'])
 def get_keychart_data_all():
-    print(request.json)
     start_year = request.json['start_year']
     end_year = request.json['end_year']
     plants = []
@@ -44,7 +41,6 @@ def get_keychart_data_all():
     js['percentage'] = sno_type_count[0]
     js['total_amount'] = dao.get_sno_count(start_year, end_year, plants)
     js['total_price'] = dao.get_total_price_count(start_year, end_year, plants)
-    print(js)
     # year_gap = int(end_year) - int(start_year)
     # js = {}
     # i = 0
@@ -70,7 +66,6 @@ def get_keychart_data():
         percent = round((int(item[2]) / 40000)*100)
         js_list.append({plant: percent})
     js['2017'] = js_list
-    print(js)
     return jsonify(js)
 
 # @bp.route('/dashboard/bar/get')
@@ -126,5 +121,4 @@ def get_line_chart_data():
     df['total_price'] = df['total_price'].apply(lambda x: round(x/100000))
     df['amount_sum'] = df['amount_sum'].apply(lambda x: round(x/10000))
     js = df.to_dict(orient='list')
-
     return jsonify(js)

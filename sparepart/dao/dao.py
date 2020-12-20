@@ -56,7 +56,6 @@ def get_total_price_count(start_year, end_year, plants):
 def get_top5_sno_data():
     tsp = models.TmSparePart
     temp = db.session.query(tsp.sno,func.year(tsp.o_warehouse_date),func.sum(tsp.amount).label('sum')).group_by(tsp.sno, func.year(tsp.o_warehouse_date)).order_by(desc('sum')).limit(5).all()
-    print(temp)
     tsp_rs = []
     for item in temp:
         # print(type(item))
@@ -95,7 +94,6 @@ def get_fbp_data(sno, freq):
         time_format = '%Y-%m-%d'
     temp = db.session.query(tsp.sno, func.date_format(tsp.o_warehouse_date, time_format), func.sum(tsp.amount)).filter(tsp.sno == sno).group_by(tsp.sno, func.date_format(tsp.o_warehouse_date, time_format)).all()
     tsp_list = []
-    print(temp)
     for item in temp:
         # day = item[1].strftime(time_format)
         tsp_list.append([item[1], item[2]])
@@ -124,6 +122,9 @@ def update_user(au):
         return True
     except:
         return False
+
+def add_user(au):
+    au = models.AuthUser
 
 def add_msg(msg):
     tm = models.TmMsg(msg,1,0)

@@ -12,12 +12,10 @@ from flask import current_app
 
 
 def sp_job():
-    print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
     dao.add_msg("SV000048预测数据")
 
 def sno_month_analysis_model():
     df = dao.get_xgboost_data()
-    print(df)
     pass
 
 def import_data_into_db():
@@ -46,7 +44,6 @@ def import_data_into_db():
         msg = filename + '数据处理完毕，成功导入' + str(row_count) + '条，并已经移入已上传目录。'
         dao.add_msg(msg) 
     except OSError as error:
-        print(error)
         with current_app.app_context():
             upload_fail_path = current_app.config.get('UPLOAD_FAIL_PATH')
             shutil.move(file_path, basepath + upload_fail_path + filename)

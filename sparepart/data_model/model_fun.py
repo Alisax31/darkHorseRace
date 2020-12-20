@@ -98,7 +98,6 @@ def arima_df():
     with open('C:/Code/darkHorseRace/sparepart/data_model/df.pkl', 'rb') as file:
         df = pickle.load(file)
         df = pd.DataFrame(df)
-        print(df.head())
     return df
 
 """

@@ -97,7 +97,6 @@ def file_pre_dispose(file_path):
             df[t] = df[t].astype(float)
         return df
     except OSError as e:
-        print(e)
         return None
     
 def plant_split(x):
@@ -145,7 +144,6 @@ def plant_agg(x):
     elif x=='PFW':
         return '9W'
     return x
-
     pass
 
 def delta_month(start_date, end_date):
@@ -158,8 +156,6 @@ def delta_month(start_date, end_date):
 
 def fill_month_sum(df):
     #df.set_index('id',inplace=True)
-    print(type(df['date'].min()))
-    print(type(df['date'].max()))
     min_time = dt.strptime(df['date'].min(), '%Y-%m')
     max_time = dt.strptime(df['date'].max(), '%Y-%m')
     start_sno= df.iloc[0,0]
@@ -193,7 +189,6 @@ def fill_month_sum(df):
         #     start_sno = df.iloc[i, 0]
         #     print('start_sno: ', start_sno)
         min_time = current_time + relativedelta(months=1)
-        print(i)
         i = i + 1
     # print(temp_df)
     temp_df.to_csv('temp_g.csv', encoding='utf-8')

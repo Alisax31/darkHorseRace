@@ -40,7 +40,16 @@ def modify_user_data():
             return jsonify({'msg':True})
         else:
             return jsonify({'msg':False})
-        
+
+@bp.route('/user/insert', methods=['POST'])
+def insert_user_data():
+    if request.method == 'POST':
+        email = request.form['email']
+        department = request.form['department']
+        phone = request.form['phone']
+        username = request.form['username']
+        au = {'username': username, 'email': email, 'department': department, 'phone': phone }
+        flag = 
 
 @bp.route('/system/job/add', methods=['POST'])
 def add_job():
