@@ -33,8 +33,6 @@ def import_data_into_db():
         if df is None:
             return False
         row_count = df.shape[0]
-        db_config = current_app.config.get('SQLALCHEMY_DATABASE_URI')
-        upload_success_path = current_app.config.get('UPLOAD_SUCCESS_PATH')
         db_engine = ''
         with current_app.app_context():
             app = current_app        

@@ -7,19 +7,18 @@ from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from . import login
 from . import manage
 from . import sp_data_module
-from . import config 
+from sparepart.config import Config 
 
 def create_app(test_config=None):
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__, instance_relative_config=False)
     # app.config.from_mapping(SECRET_KEY='dev', DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'))
     app.jinja_env.variable_start_string = '[['
     app.jinja_env.variable_end_string = ']]'
-    if test_config is None:
-        # app.config.from_object(config.Config())
-        app.config.from_pyfile('config.py',silent=True)
-    else:
-        app.config.from_mapping(test_config)
-
+    # if test_config is None:
+    #     #app.config.from_object(Config)
+    #     app.config.from_pyfile('./settings/config_dev.py', silent=False)
+    # else:
+    #     app.config.from_object(config.TestingConfig)
     try:
         os.mkdir(app.instance_path)
     except OSError:
@@ -31,7 +30,7 @@ def create_app(test_config=None):
     app.config['SCHEDULER_API_ENABLED'] = True
     app.config['SCHEDULER_TIMEZONE'] = 'Asia/Shanghai'
     app.config['SCHEDULER_JOBSTORES'] = {'default': SQLAlchemyJobStore(url=app.config['SQLALCHEMY_DATABASE_URI'])}
-    # # db = SQLAlchemy(app)
+    # db = SQLAlchemy(app)
     # from SP import models
     # db.init_app(app)
     # app.add_url_rule('/', endpoint='index')

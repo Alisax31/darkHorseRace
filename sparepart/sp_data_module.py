@@ -22,11 +22,6 @@ def get_data():
     # print(js)
     return 'success'
 
-@bp.route('/dashboard/scatter/get')
-def get_scatter_data():
-    js = util.scatter_data()
-    return jsonify(js)
-
 @bp.route('/dashboard/keychart/post', methods=['POST'])
 def get_keychart_data_all():
     start_year = request.json['start_year']
@@ -67,12 +62,6 @@ def get_keychart_data():
         js_list.append({plant: percent})
     js['2017'] = js_list
     return jsonify(js)
-
-# @bp.route('/dashboard/bar/get')
-# def get_bar_data():
-#     sma_rs = dao.get_sno_month_analysis_data()
-#     print(sma_rs)
-#     return jsonify(sma_rs)
 
 @bp.route('/dashboard/polar/get')
 def get_polar_data():
@@ -122,3 +111,56 @@ def get_line_chart_data():
     df['amount_sum'] = df['amount_sum'].apply(lambda x: round(x/10000))
     js = df.to_dict(orient='list')
     return jsonify(js)
+
+
+@bp.route('/dashboard/scatter/post', methods=['POST'])
+def get_scatter_data():
+    #-----------------------------------------------------
+    #提供dashboard页面散点图数据。
+    #:method: POST
+    #:post_param: start_year 开始年份
+    #:post_param: end_year 结束年份
+    #:post_param: plants 厂区数组，类似["PFA1","PFA2"...]        
+    #:return: json
+    #-----------------------------------------------------
+    start_year = request.json['start_year']
+    end_year = request.json['end_year']
+    plants = []
+    for item in request.json['plants']:
+        tmp = util.plant_agg(item)
+        plants.append(tmp)
+    scatter_data = dao.get_scatter_data(start_year, end_year, plants)
+    js = {}
+    for item in scatter_data:
+        plant = util.plant_split(item[0])
+        if (plant in js):
+            js[plant].append([item[1], int(item[3]), item[2]])
+        else:
+            js[plant] = [[item[1], int(item[3]), item[2]]]
+    return jsonify(js)
+
+@bp.route('/dashboard/polar/test', methods=['POST'])
+def get_polar_data_test():
+    #-----------------------------------------------------
+    #提供dashboard页面极点图数据。
+    #:method: POST
+    #:post_param: start_year 开始年份
+    #:post_param: end_year 结束年份
+    #:post_param: plants 厂区数组，类似["PFA1","PFA2"...]        
+    #:return: json
+    #-----------------------------------------------------
+    start_year = request.json['start_year']
+    end_year = request.json['end_year']
+    plants = []
+    for item in request.json['plants']:
+        tmp = util.plant_agg(item)
+        plants.append(tmp)
+    
+    return jsonify("")
+
+'''
+@bp.route('/dashboard/scatter/get')
+def get_scatter_data():
+    js = util.scatter_data()
+    return jsonify(js)
+'''

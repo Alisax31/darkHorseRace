@@ -11,7 +11,7 @@
         <el-row class="row" type="flex" justify="center">
             <el-col :span="4"></el-col>
             <el-col :span="16" style="display:flex;justify-content:center">
-                <el-checkbox-group v-model="plantGroup" @change="showLog()">
+                <el-checkbox-group v-model="plantGroup" @change="fresh()">
                     <el-checkbox-button v-for="plant in plants" :label="plant" :key="plant">{{plant}}</el-checkbox-button>
                 </el-checkbox-group>
             </el-col>
@@ -26,7 +26,7 @@
                     :min="2017"
                     :max="2020"
                     :marks="{2017:'2017',2018:'2018',2019:'2019',2020:{style:{left: '95%'},label:'2020'}}"
-                    @input="showLog()"> 
+                    @input="fresh()"> 
                 </el-slider>
             </el-col>
         </el-row>
@@ -388,7 +388,12 @@ export default {
         showScatterChart() {
             this.loading.scatterChart = true;
             var that = this;
-            axios.get('/api/dashboard/scatter/get').then(function(response){
+            var jsons = {
+                'start_year': this.yearSlider[0],
+                'end_year': this.yearSlider[1],
+                'plants': this.plantGroup
+            }
+            axios.post('/api/dashboard/scatter/post', jsons, {header:{'Content-Type':'application/json'}}).then(function(response){
                 var dataPFW = [];
                 var dataPFS = [];
                 var dataPFE = [];
@@ -429,7 +434,7 @@ export default {
 
                 var option = {
                     title: {
-                        text: "2017年各工厂备件消耗总量以及消耗种类总量图",
+                        text: that.yearSlider[0] + "-" + that.yearSlider[1] + "年各工厂备件消耗总量以及消耗种类总量图",
                         left: "center",
                         textStyle: {
                             color: '#fff'
@@ -441,7 +446,7 @@ export default {
                     ],
                     legend: {
                         top: 30,
-                        data: ['PFA1', 'PFA2', 'PFA3', 'PFE', 'PFS', 'PFN', 'PFY', 'PFH', 'PFW' ,'PFC'],
+                        data: that.plantGroup,
                         textStyle: {
                             color: '#fff',
                             fontSize: 16
@@ -472,14 +477,13 @@ export default {
                         }
                     },
                     xAxis: {
-                        type: 'value',
+                        type: 'category',
                         name: '月份',
                         nameGap: 16,
                         nameTextStyle: {
                             color: '#fff',
                             fontSize: 14
                         },
-                        max: 12,
                         splitLine: {
                             show: false
                         },
@@ -619,7 +623,6 @@ export default {
                 'end_year': end_year,
                 'plants': this.plantGroup
             }
-            console.log(jsons)
             axios.post('/api/dashboard/keychart/post', jsons, {header:{'Content-Type':'application/json'}}).then(response => {
                 // this.percentage = response.data['percentage'];
                 this.percentage = Math.round((response.data['percentage'] / 100000)*100)
@@ -629,8 +632,9 @@ export default {
                 this.loading.keyChart = false;
             })
         },
-        showLog() {
+        fresh() {
             this.showSnoPercent()
+            this.showScatterChart()
         },
         showJob() {
             axios.get('/api/scheduler/jobs').then(response => {

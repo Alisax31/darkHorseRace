@@ -15,6 +15,23 @@ from sqlalchemy import text
 #     for item in sma_lists:
 #         sma_rs.append({'sno':item[0],'sum':int(item[1])})
 #     return sma_rs
+def get_scatter_data(start_year, end_year, plants):
+    #-----------------------------------------------------
+    #提供bp.sp_data_module get_scatter_data方法命名sql。
+    #:param: start_year 开始年份
+    #:param: end_year 结束年份
+    #:param: plants 厂区数组，类似["PFA1","PFA2"...]        
+    #:return: list
+    #:sql: select upper(substr(asset_no,1,2)),date_format(o_warehouse_date, '%Y-%m') as y_m,count(1),sum(amount) from tm_spare_part_all 
+    #      where year(o_warehouse_date) >= @start_year and year(o_warehouse_date) <= @end_year and upper(substr(asset_no,1,2)) in @plants
+    #      group by upper(substr(asset_no,1,2)), date_format(o_warehouse_date, '%Y-%m')
+    #-----------------------------------------------------
+    tspa = models.TmSparePartAll
+    temp = db.session.query(func.upper(func.substr(tspa.asset_no, 1, 2)).label('plant'), func.date_format(tspa.o_warehouse_date, '%Y-%m').label('year_month'), func.count(tspa.sno), func.sum(tspa.amount)).\
+        filter(func.upper(func.substr(tspa.asset_no,1,2)).in_(plants), func.year(tspa.o_warehouse_date)>=start_year, func.year(tspa.o_warehouse_date)<=end_year).\
+            group_by(func.upper(func.substr(tspa.asset_no, 1, 2)), func.date_format(tspa.o_warehouse_date, '%Y-%m')).\
+                order_by('plant', 'year_month').all()
+    return temp
 
 def get_unused_sno_amount_price():
     tspa = models.TmSparePartAll
@@ -124,8 +141,10 @@ def update_user(au):
         return False
 
 def add_user(au):
-    au = models.AuthUser
-
+    db.session.add(au)
+    db.session.commit()
+    return True
+    
 def add_msg(msg):
     tm = models.TmMsg(msg,1,0)
     db.session.add(tm)

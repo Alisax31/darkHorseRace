@@ -8,6 +8,7 @@ from sparepart.dao import dao
 from os import path
 from datetime import datetime
 from werkzeug.utils import secure_filename
+from sparepart import config
 
 bp = Blueprint('manage', __name__)
 @bp.route('/user/get')
@@ -46,10 +47,14 @@ def insert_user_data():
     if request.method == 'POST':
         email = request.form['email']
         department = request.form['department']
+        password = request.form['password']
         phone = request.form['phone']
         username = request.form['username']
-        au = {'username': username, 'email': email, 'department': department, 'phone': phone }
-        flag = 
+        au_dict = {'username': username, 'email': email, 'password': password, 'department': department, 'phone': phone }
+        au = models.AuthUser()
+        au.set_attrs(au_dict)
+        au_flag = dao.add_user(au)
+        return jsonify({'msg':au_flag})
 
 @bp.route('/system/job/add', methods=['POST'])
 def add_job():
@@ -128,8 +133,24 @@ def update_msg():
     is_read = request.args['is_read']
     js = dao.update_msg(int(mid), int(is_read))
     return jsonify({'msg':'success'})
-
+#  ------------------------------
+#  测试config以及sqlalchemy
+#  ------------------------------
+'''
 @bp.route('/test/test')
 def job_test():
-    jobs.import_data_into_db()
+    # jobs.import_data_into_db()
+    db_config = current_app.config.get('SQLALCHEMY_DATABASE_URI')
+    upload_success_path = current_app.config.get('UPLOAD_SUCCESS_PATH')
+    print('upload_success_path:', upload_success_path)
+    print('db_config:', db_config)
+    print('current_app_config', current_app.config.__getitem__)
+    sys_config = config.Config
+    print('config.py:',sys_config.__dict__)
+    sys_config = config.ProductionConfig
+    print('pro:', sys_config.__dict__)
+    count = dao.get_msg_count()
+    print(count)
     return "111"
+'''
+#---------------------------------------------
